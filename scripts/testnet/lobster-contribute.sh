@@ -24,7 +24,7 @@ votesValue="$newVotes $otherPolicyId.LobsterVotes"
 increaseValue="$(($6-$5)) $otherPolicyId.LobsterCounter + 1 $otherPolicyId.LobsterVotes"
 walletAddr=$(cat $3)
 scriptFile=lobster.plutus
-scriptAddr=$(./mainnet-script-address.sh $scriptFile)
+scriptAddr=$(./testnet-script-address.sh $scriptFile)
 
 echo "wallet utxo: $1"
 echo "script utxo: $2"
@@ -47,16 +47,15 @@ echo "increaseValue: $increaseValue"
 echo "old votes: $7"
 echo "new votes: $newVotes"
 echo "metadata: $8"
-echo
 
 echo "querying protocol parameters"
-./mainnet-query-protocol-parameters.sh
+./testnet-query-protocol-parameters.sh
 
 echo
 
 cardano-cli transaction build \
     --alonzo-era \
-    --mainnet \
+    --testnet-magic 1097911063 \
     --tx-in $1 \
     --tx-in $2 \
     --tx-in-script-file $scriptFile \
@@ -70,7 +69,7 @@ cardano-cli transaction build \
     --mint-redeemer-value [] \
     --change-address $walletAddr \
     --metadata-json-file $8 \
-    --protocol-params-file mainnet-protocol-parameters.json \
+    --protocol-params-file testnet-protocol-parameters.json \
     --out-file $bodyFile
 
 echo "saved transaction to $bodyFile"
@@ -78,13 +77,13 @@ echo "saved transaction to $bodyFile"
 cardano-cli transaction sign \
     --tx-body-file $bodyFile \
     --signing-key-file $4 \
-    --mainnet \
+    --testnet-magic 1097911063 \
     --out-file $outFile
 
 echo "signed transaction and saved as $outFile"
 
 cardano-cli transaction submit \
-    --mainnet \
+    --testnet-magic 1097911063 \
     --tx-file $outFile
 
 echo "submitted transaction"
